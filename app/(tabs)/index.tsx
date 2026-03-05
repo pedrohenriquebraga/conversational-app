@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -60,6 +60,7 @@ export default function HomeScreen() {
     PRINCIPLES[0]?.challengePrompt ?? "",
   );
   const [messages, setMessages] = useState<Message[]>([]);
+  const [testedPrincipleIds, setTestedPrincipleIds] = useState<number[]>([]);
   const surface = "#FFFFFF";
   const textColor = "#0F172A";
 
@@ -68,20 +69,9 @@ export default function HomeScreen() {
     PRINCIPLES[0] ??
     null;
 
-  const visitedIds = useMemo(() => {
-    return Array.from(
-      new Set(
-        messages
-          .filter((message) => message.role === "assistant")
-          .map((message) => {
-            const principleId = Number(message.id.split("-")[0]);
-            return Number.isNaN(principleId) ? 0 : principleId;
-          }),
-      ),
-    ).filter((value) => value > 0);
-  }, [messages]);
-
-  const progress = Math.round((visitedIds.length / PRINCIPLES.length) * 100);
+  const progress = Math.round(
+    (testedPrincipleIds.length / PRINCIPLES.length) * 100,
+  );
 
   const handleSelectPrinciple = (id: number) => {
     const next = PRINCIPLES.find((principle) => principle.id === id);
@@ -115,6 +105,13 @@ export default function HomeScreen() {
         content: assistantReply,
       },
     ]);
+
+    setTestedPrincipleIds((current) => {
+      if (current.includes(selected.id)) {
+        return current;
+      }
+      return [...current, selected.id];
+    });
   };
 
   const handleResetChat = () => {
@@ -136,8 +133,8 @@ export default function HomeScreen() {
       <ThemedView style={styles.progressCard}>
         <ThemedText type="defaultSemiBold">Progresso de exploração</ThemedText>
         <ThemedText>
-          Você já testou {visitedIds.length} de {PRINCIPLES.length} princípios (
-          {progress}%).
+          Você já testou {testedPrincipleIds.length} de {PRINCIPLES.length}{" "}
+          princípios ({progress}%).
         </ThemedText>
         <View style={[styles.progressTrack, { backgroundColor: "#D1D5DB" }]}>
           <View
@@ -154,7 +151,7 @@ export default function HomeScreen() {
         <View style={styles.chipsWrap}>
           {PRINCIPLES.map((principle) => {
             const isActive = principle.id === selectedId;
-            const isVisited = visitedIds.includes(principle.id);
+            const isVisited = testedPrincipleIds.includes(principle.id);
             return (
               <Pressable
                 key={principle.id}
