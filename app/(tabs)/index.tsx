@@ -1,6 +1,6 @@
 import ChatInput from '@/components/ChatInput';
 import { ChatUserMessage } from '@/components/ChatUserMessage';
-import { AIMessageType, Message, UserMessageType } from '@/types/chat';
+import { Message } from '@/types/chat';
 import React, { useCallback, useRef, useState } from 'react';
 import {
   FlatList,
@@ -17,7 +17,7 @@ const ChatScreen = () => {
       type: 'user',
       content: 'Olá, IA! Como você está hoje?',
       id: '1',
-    } as UserMessageType,
+    },
     {
       type: 'ai',
       id: '2',
@@ -28,7 +28,7 @@ const ChatScreen = () => {
           props: {
             children: 'Como iniciar no desenvolvimento mobile?',
             style: {
-              color: '#007AFF',
+              color: 'red',
               fontSize: 28,
               fontWeight: 'bold',
               marginBottom: 20,
@@ -49,7 +49,7 @@ const ChatScreen = () => {
           },
         },
       ],
-    } as AIMessageType,
+    },
   ];
 
   const [promptText, setPromptText] = useState('');
