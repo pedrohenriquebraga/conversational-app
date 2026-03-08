@@ -1,5 +1,6 @@
 import ChatInput from '@/components/ChatInput';
 import { ChatUserMessage } from '@/components/ChatUserMessage';
+import { AIMessageType, Message, UserMessageType } from '@/types/chat';
 import React, { useCallback, useRef, useState } from 'react';
 import {
   FlatList,
@@ -8,52 +9,81 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { AIResponse } from '../../components/AgentComponents';
 
-export interface Message {
-  id: string;
-  type: 'user' | 'ai';
-  content: string;
-}
-
-export interface ChatProps {
-  messages: Message[];
-  onSendMessage: (message: string) => void;
-  isLoadingResponse?: boolean;
-}
 const ChatScreen = () => {
-  const messages: Message[] = [{
-    type: 'user',
-    content: 'Olá, IA! Como você está hoje?',
-    id: '1',
-  }]; // TODO redux Store
+  const messages: Message[] = [
+    {
+      type: 'user',
+      content: 'Olá, IA! Como você está hoje?',
+      id: '1',
+    } as UserMessageType,
+    {
+      type: 'ai',
+      id: '2',
+      content: [
+        {
+          type: 'TextH1',
+          id: 'h1-1',
+          props: {
+            children: 'Como iniciar no desenvolvimento mobile?',
+            style: {
+              color: '#007AFF',
+              fontSize: 28,
+              fontWeight: 'bold',
+              marginBottom: 20,
+            },
+          },
+        },
+        {
+          type: 'TextParagraph',
+          id: 'p-1',
+          props: {
+            children:
+              'O desenvolvimento mobile é uma área em crescimento constante. Existem várias plataformas e linguagens que você pode aprender para iniciar sua carreira.',
+            style: {
+              fontSize: 15,
+              lineHeight: 24,
+              color: '#333333',
+            },
+          },
+        },
+      ],
+    } as AIMessageType,
+  ];
+
   const [promptText, setPromptText] = useState('');
   const flatListRef = useRef<FlatList<Message>>(null);
 
   const handleSend = useCallback(() => {
     if (promptText.trim()) {
+      // Dispatch action ao Redux
+      // dispatch(sendPromptRequest(promptText));
       setPromptText('');
     }
   }, [promptText]);
 
-  const renderMessage = useCallback(({item}: {item: Message}) => {
-    if (item.type === 'user') {
-      return (
-        <ChatUserMessage
+  const renderMessage = useCallback(({ item }: { item: Message }) => {
+  // Mensagem do usuário
+  if (item.type === 'user') {
+    return (
+      <ChatUserMessage
         id={item.id}
-          content={item.content}
-        />
-      );
-    } else {
-      return (
-        // <IAResponse
-        //   message={item.content}
-        //   timestamp={item.timestamp}
-        //   isLoading={item.isLoading}
-        // />
-        <></>
-      );
-    }
-  }, []);
+        content={item.content}
+      />
+    );
+  }
+
+  // Mensagem da IA
+  return (
+    <AIResponse
+      message={item.content}
+      messageId={item.id}
+      isStreaming={item.isStreaming}
+      createdAt={item.createdAt}
+    />
+  );
+}, []);
 
   const keyExtractor = useCallback((item: Message) => item.id, []);
 
@@ -69,19 +99,19 @@ const ChatScreen = () => {
   }, [messages.length]);
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{flex: 1}}>
-        <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+        style={{ flex: 1 }}
+      >
+        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
           <FlatList<Message>
             ref={flatListRef}
             data={messages}
             renderItem={renderMessage}
             keyExtractor={keyExtractor}
-            inverted
             scrollEnabled
-            contentContainerStyle={{flexGrow: 1, paddingVertical: 8}}
+            contentContainerStyle={{ flexGrow: 1, paddingVertical: 8, justifyContent: 'flex-end' }}
           />
         </View>
 
@@ -100,17 +130,20 @@ const ChatScreen = () => {
 };
 
 const styles = StyleSheet.create({
-
-  flatListContent: {
-    paddingTop: 8,
-    paddingBottom: 8,
-    flexGrow: 1,
-  },
   inputContainer: {
     backgroundColor: '#FFFFFF',
     paddingBottom: Platform.OS === 'ios' ? 0 : 8,
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
+  },
+  aiMessageContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  flatListContent: {
+    paddingTop: 8,
+    paddingBottom: 8,
+    flexGrow: 1,
   },
   emptyStateContainer: {
     flex: 1,

@@ -1,22 +1,52 @@
-import { View } from 'react-native';
-import { TextH1 } from './TextH1';
-import { TextList } from './TextList';
-import { TextParagraph } from './TextParagraph';
+import { AIMessageType } from '@/types/chat';
+import { renderAIComponents } from '@/utils/componentRenderer';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { AgentComponentRenderer } from './AgentComponentRenderer';
 
-export const AgentComponents = {
-  TextH1,
-  TextParagraph,
-  TextList,
+interface AIResponseProps {
+  message: AIMessageType['content'];
+  messageId: string;
+  isStreaming?: boolean;
+  createdAt?: Date;
+}
+
+export const AIResponse: React.FC<AIResponseProps> = ({
+  message,
+  messageId,
+  isStreaming,
+  createdAt,
+}) => {
+  const renderedComponents = renderAIComponents(message);
+
+  return (
+    <View style={styles.container}>
+      <AgentComponentRenderer
+        id={messageId}
+        components={renderedComponents}
+      />
+      {isStreaming && (
+        <View style={styles.streamingIndicator}>
+
+        </View>
+      )}
+    </View>
+  );
 };
 
-export const AgentComponentRenderer = ({id, components}: {id: string, components: React.ReactNode[]}) => {
-  return (
-    <>
-      {components.map((component, index) => (
-        <View key={`${id}-${index}`} style={{marginBottom: 16}}>
-          {component}
-        </View>
-      ))}
-    </>
-  );
-}
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    alignSelf: 'flex-start',
+    maxWidth: '85%',
+  },
+  streamingIndicator: {
+    marginTop: 8,
+    height: 4,
+    borderRadius: 2,
+  },
+});
