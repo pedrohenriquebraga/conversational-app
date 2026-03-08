@@ -1,4 +1,4 @@
-import {Tabs} from 'expo-router';
+import { Tabs } from 'expo-router';
 import React from 'react';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -10,7 +10,7 @@ export default function TabLayout() {
         headerShown: false,
       }}>
       <Tabs.Screen
-        name="chat"
+        name="index"
         options={{
           title: 'Chat',
           tabBarIcon: ({color, size}) => (
@@ -20,10 +20,14 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="index"
+        name="settings"
         options={{
-          title: 'CUI Principles',
+          title: 'Configurações',
+          tabBarIcon: ({color, size}) => (
+            <Ionicons name="settings-sharp" size={24} color={color} />
+          ),
         }}
+
       />
     </Tabs>
   );

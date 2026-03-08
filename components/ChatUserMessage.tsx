@@ -2,16 +2,15 @@ import React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
 export interface ChatUserMessageProps {
-  message: string;
-  timestamp?: Date;
-  isLoading?: boolean;
+  content: string;
+  id: string;
 }
 
-export const ChatUserMessage = ({message}: ChatUserMessageProps) => {
+export const ChatUserMessage = ({content, id}: ChatUserMessageProps) => {
   return (
-    <View style={[styles.container]}>
+    <View key={id} style={[styles.container]}>
       <View style={styles.messageBubble}>
-        <Text style={styles.messageText}>{message}</Text>
+        <Text style={styles.messageText}>{content}</Text>
       </View>
     </View>
   );
@@ -26,7 +25,7 @@ const styles = StyleSheet.create({
   messageBubble: {
     marginLeft: 12,
     maxWidth: '80%',
-    backgroundColor: '#9c9c9c',
+    backgroundColor: '#f5f5f5',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -35,7 +34,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   messageText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 12,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     flex: 1,

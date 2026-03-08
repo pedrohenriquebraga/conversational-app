@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -14,13 +14,14 @@ const ChatInput = ({
   onChangeText,
   placeholder,
   onSendPress,
+  isLoading,
 }: {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
   onSendPress?: () => void;
+  isLoading?: boolean;
 }) => {
-  const inputRef = useRef<RNTextInput>(null);
 
   return (
     <KeyboardAvoidingView
@@ -29,7 +30,6 @@ const ChatInput = ({
       <View style={styles.inputWrapper}>
         <View style={styles.inputContainer}>
           <RNTextInput
-            ref={inputRef}
             style={styles.textInput}
             value={value}
             onChangeText={onChangeText}
@@ -37,20 +37,23 @@ const ChatInput = ({
             placeholderTextColor="#9CA3AF"
             multiline
             maxLength={4096}
-            editable
+            editable={!isLoading}
             scrollEnabled
           />
-          {value.trim().length > 0 && (
             <TouchableOpacity
-              style={styles.sendButton}
+              style={[styles.sendButton, {backgroundColor: isLoading ? '#ff9f9fb0' : 'transparent'} ]}
+              disabled={value.trim() === ''}
               onPress={() => {
                 onSendPress?.();
-                inputRef.current?.clear();
               }}
               activeOpacity={0.7}>
-              <Ionicons name="send" size={14} color="#FFFFFF" />
+              {isLoading ? (
+                <Ionicons name="stop" size={12} color="#fa4949" />
+              ) : (
+                <Ionicons name="send" size={20} color={value.trim() === '' ? "#9CA3AF" : "#3B82F6"} />
+              )}
             </TouchableOpacity>
-          )}
+
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -86,10 +89,9 @@ const styles = StyleSheet.create({
     maxHeight: 100,
   },
   sendButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#3B82F6',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
