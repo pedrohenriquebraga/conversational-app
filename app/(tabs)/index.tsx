@@ -9,15 +9,30 @@ import {
   View,
 } from "react-native";
 
+interface IMessage {
+  text: string;
+  is_right: boolean;
+}
+
 const MessagesScreen: React.FC = () => {
+  const [messages, setMessages] = useState<IMessage[]>([
+    {
+      text: "Teste Mensagem na direita",
+      is_right: true,
+    },
+    {
+      text: "Teste mensagem na esquerda",
+      is_right: false,
+    },
+  ]);
   const [inputMessage, setInputMessage] = useState("");
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.message_container}>
-        <Message content="Teste mensagem ao lado direito" isRight />
-        <Message content="Teste mensagem ao lado esquerdo" />
-        <Message content="Teste mensagem ao lado direito 2" isRight />
+        {messages.map((msg, i) => (
+          <Message key={i} content={msg.text} isRight={msg.is_right} />
+        ))}
       </ScrollView>
       <View style={styles.input_container}>
         <TextInput
