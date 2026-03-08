@@ -1,6 +1,6 @@
-# 💬 Chat IA - Bootcamp Project
+# 💬 Conversational APP - Bootcamp Project
 
-Clone da interface do ChatGPT desenvolvido em React Native com Expo, implementando arquitetura Flux com Redux e Redux Sagas. O app permite enviar mensagens para uma IA e receber respostas em tempo real via streaming.
+interface de chat desenvolvido em React Native com Expo, implementando arquitetura Flux com Redux e Redux Sagas. O app permite enviar mensagens para uma IA e receber respostas em tempo real via streaming.
 
 ## 📋 Sumário
 
@@ -10,7 +10,7 @@ Clone da interface do ChatGPT desenvolvido em React Native com Expo, implementan
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Funcionalidades](#funcionalidades)
 - [Explicação: Streaming de Respostas](#explicação-streaming-de-respostas)
-- [Diagrama de Arquitetura](#diagrama-de-arquitetura)
+- [Diagrama de sequência](#diagrama-de-sequencia)
 - [Estrutura de Pastas](#estrutura-de-pastas)
 - [Guia de Implementação](#guia-de-implementação)
 - [Design (Figma)](#design-figma)
@@ -298,63 +298,7 @@ while (true) {
 ✅ Uso de Banda - Dados chegam conforme processados<br/>
 ✅ Menos Timeout - Não aguarda resposta completa<br/>
 
-## 🔄 Diagrama de Arquitetura
-
-```mermaid
-graph TB
-    subgraph UI["🎨 Presentation Layer"]
-        ChatScreen["ChatScreen.tsx<br/>(React Component)"]
-        ChatMessage["ChatMessage.tsx<br/>(Componente de Mensagem)"]
-        InputGroup["InputGroup.tsx<br/>(Input + Botões)"]
-    end
-
-    subgraph Redux["📦 Redux Store"]
-        Store["Redux Store<br/>(Centraliza Estado)"]
-        ChatSlice["chatSlice.ts<br/>(Reducer + Actions)"]
-    end
-
-    subgraph Middleware["⚙️ Middleware Layer"]
-        Sagas["Redux Sagas<br/>(Side Effects)"]
-        SendPromptSaga["sendPromptSaga<br/>(Orquestra Streaming)"]
-        StopStreamSaga["stopStreamSaga<br/>(Cancelamento)"]
-    end
-
-    subgraph Data["🌐 Data Layer"]
-        ChatAPI["chatAPI.ts<br/>(Fetch com Streaming)"]
-        Backend["Backend API<br/>(/api/chat)"]
-    end
-
-    subgraph State["💾 State Structure"]
-        Messages["messages: Message[]<br/>(Histórico)"]
-        UIState["uiState: {<br/>isStreaming,<br/>error<br/>}"]
-    end
-
-    ChatScreen -->|useSelector| Store
-    ChatScreen -->|dispatch| ChatSlice
-    ChatMessage -->|useSelector| Messages
-    InputGroup -->|dispatch<br/>sendPromptRequest| Sagas
-    InputGroup -->|dispatch<br/>stopStreamRequest| Sagas
-
-    Sagas -->|intercepta| ChatSlice
-    SendPromptSaga -->|call| ChatAPI
-    SendPromptSaga -->|put<br/>receiveStreamChunk| ChatSlice
-    StopStreamSaga -->|abort| ChatAPI
-
-    ChatAPI -->|fetch| Backend
-    ChatAPI -->|ReadableStream| Sagas
-
-    ChatSlice -->|atualiza| Store
-    Store -->|contains| Messages
-    Store -->|contains| UIState
-
-    style UI fill:#e1f5ff
-    style Redux fill:#fff3e0
-    style Middleware fill:#f3e5f5
-    style Data fill:#e8f5e9
-    style State fill:#fce4ec
-```
-
-### Diagrama de sequência
+## 🔄 Diagrama de sequência
 
 ```mermaid
 sequenceDiagram
@@ -431,13 +375,18 @@ conversational-app/
 │   └── index.ts (Configuração da Store)
 │
 ├── 📂 app/ (navigation screens)
-│   └── ChatScreen.tsx
+│   └── 📂 (tabs)/
+│       └── index.tsx (ChatScreen)
+|       └── settings.tsx
 │
 ├── 📂 components/ (Componentes reutilizáveis)
-│   ├──── Button.tsx
-│   ├──── Text.tsx
-│   ├──── Input.tsx
-│   ├──── ChatMessage.tsx
+│   └── 📂 AgentComponents/ (Componentes disponíveis para a Resposta do Agente de IA)
+|   |   └── AgentComponentRenderer.tsx (Renderiza a lista de componentes retornada pelo Agente)
+|   |   ├── TextH1.tsx
+|   |   ├── Paragraph.tsx
+|   |   └── TextList.tsx
+│   ├──── ChatInput.tsx
+│   └──── ChatUserMessage.tsx
 │
 ├── 📂 api/ (Requisições HTTP)
 │   └── chatAPI.ts (Fetch com streaming)
