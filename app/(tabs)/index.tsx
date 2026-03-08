@@ -1,11 +1,21 @@
+import Message from "@/components/Message";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const MessagesScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.message_container}></View>
+      <ScrollView contentContainerStyle={styles.message_container}>
+        <Message content="Teste mensagem ao lado direito" isRight />
+        <Message content="Teste mensagem ao lado esquerdo" />
+      </ScrollView>
       <View style={styles.input_container}>
         <TextInput
           style={styles.message_input}
@@ -31,6 +41,7 @@ const styles = StyleSheet.create({
   },
   message_container: {
     flex: 1,
+    padding: 12,
   },
   input_container: {
     flexDirection: "row",
