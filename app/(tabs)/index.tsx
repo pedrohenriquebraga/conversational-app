@@ -10,58 +10,21 @@ import {
   View,
 } from 'react-native';
 import { AIResponse } from '../../components/AgentComponents';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { sendPromptRequest } from '../../store/modules/chat/slice';
 
 const ChatScreen = () => {
-  const messages: Message[] = [
-    {
-      type: 'user',
-      content: 'Olá, IA! Como você está hoje?',
-      id: '1',
-    },
-    {
-      type: 'ai',
-      id: '2',
-      content: [
-        {
-          type: 'TextH1',
-          id: 'h1-1',
-          props: {
-            children: 'Como iniciar no desenvolvimento mobile?',
-            style: {
-              color: 'red',
-              fontSize: 28,
-              fontWeight: 'bold',
-              marginBottom: 20,
-            },
-          },
-        },
-        {
-          type: 'TextParagraph',
-          id: 'p-1',
-          props: {
-            children:
-              'O desenvolvimento mobile é uma área em crescimento constante. Existem várias plataformas e linguagens que você pode aprender para iniciar sua carreira.',
-            style: {
-              fontSize: 15,
-              lineHeight: 24,
-              color: '#333333',
-            },
-          },
-        },
-      ],
-    },
-  ];
-
+  const dispatch = useAppDispatch();
+  const {selectedChat: {messages, id: chatId}, isStreaming} = useAppSelector(store => store.chat);
   const [promptText, setPromptText] = useState('');
   const flatListRef = useRef<FlatList<Message>>(null);
 
   const handleSend = useCallback(() => {
     if (promptText.trim()) {
-      // Dispatch action ao Redux
-      // dispatch(sendPromptRequest(promptText));
+      dispatch(sendPromptRequest({ prompt: promptText }));
       setPromptText('');
     }
-  }, [promptText]);
+  }, [dispatch, promptText]);
 
   const renderMessage = useCallback(({ item }: { item: Message }) => {
   // Mensagem do usuário
@@ -121,7 +84,7 @@ const ChatScreen = () => {
             onChangeText={setPromptText}
             placeholder="Escreva uma mensagem..."
             onSendPress={handleSend}
-            isLoading={false}
+            isLoading={isStreaming}
           />
         </View>
       </KeyboardAvoidingView>

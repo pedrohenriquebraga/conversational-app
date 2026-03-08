@@ -404,6 +404,14 @@ conversational-app/
 ## 🚀 Iniciando o projeto
 
 ```bash
+# ADICIONE O ARQUIVO .env
+
+# INICIE O SERVIDOR DE TESTES
+cd server-example
+npm install
+node server.js
+
+# NA RAIZ DO REPOSITORIO RODE OS COMANDOS
 npm install
 npm run ios #or npm run android
 
