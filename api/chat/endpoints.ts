@@ -1,4 +1,4 @@
-import { SendPromptResponseDTO } from './types';
+import { SendPromptResponseDTO } from "./types";
 
 const apiBaseURL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -15,14 +15,25 @@ export const sendPromptWithStreaming = ({
   signal?: AbortSignal;
 }): Promise<void> => {
   return new Promise((resolve, reject) => {
+    const normalizedBaseURL = (apiBaseURL || "").replace(/\/+$/, "");
+    const chatEndpoint = normalizedBaseURL.endsWith("/api")
+      ? `${normalizedBaseURL}/chat`
+      : `${normalizedBaseURL}/api/chat`;
+
+    if (!normalizedBaseURL) {
+      reject(new Error("EXPO_PUBLIC_API_BASE_URL is not defined"));
+      return;
+    }
+
     const xhr = new XMLHttpRequest();
     let processedLength = 0;
+    let lineBuffer = "";
 
-    xhr.open('POST', `${apiBaseURL}/chat`);
-    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.open("POST", chatEndpoint);
+    xhr.setRequestHeader("Content-Type", "application/json");
 
     // Habilita streaming incremental
-    xhr.responseType = 'text';
+    xhr.responseType = "text";
 
     xhr.onprogress = () => {
       // Pega apenas o trecho novo recebido desde o último onprogress
@@ -31,8 +42,12 @@ export const sendPromptWithStreaming = ({
 
       if (!newData) return;
 
-      // Processa linha a linha (NDJSON)
-      const lines = newData.split('\n');
+      // Acumula dados para lidar com JSON quebrado entre eventos de progresso.
+      lineBuffer += newData;
+
+      // Processa apenas linhas completas (NDJSON); a ultima pode vir incompleta.
+      const lines = lineBuffer.split("\n");
+      lineBuffer = lines.pop() ?? "";
 
       for (const line of lines) {
         const trimmed = line.trim();
@@ -40,18 +55,38 @@ export const sendPromptWithStreaming = ({
 
         try {
           // Remove prefixo de chunk size do chunked transfer encoding (ex: "144")
-          const jsonLine = trimmed.replace(/^[0-9a-f]+\r?$/i, '').replace(/^[0-9a-f]+\s+/i, '').trim();
+          const jsonLine = trimmed
+            .replace(/^[0-9a-f]+\r?$/i, "")
+            .replace(/^[0-9a-f]+\s+/i, "")
+            .trim();
           if (!jsonLine) continue;
 
           const data = JSON.parse(jsonLine) as SendPromptResponseDTO;
           onChunk?.(data);
         } catch (error) {
-          console.error('[API] JSON chunk parse error', error);
+          console.error("[API] JSON chunk parse error", error);
         }
       }
     };
 
     xhr.onload = () => {
+      // Processa eventual JSON pendente no buffer quando a conexao finalizar.
+      const pendingLine = lineBuffer.trim();
+      if (pendingLine) {
+        try {
+          const jsonLine = pendingLine
+            .replace(/^[0-9a-f]+\r?$/i, "")
+            .replace(/^[0-9a-f]+\s+/i, "")
+            .trim();
+          if (jsonLine) {
+            const data = JSON.parse(jsonLine) as SendPromptResponseDTO;
+            onChunk?.(data);
+          }
+        } catch (error) {
+          console.error("[API] JSON chunk parse error", error);
+        }
+      }
+
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve();
       } else {
@@ -60,16 +95,16 @@ export const sendPromptWithStreaming = ({
     };
 
     xhr.onerror = () => {
-      reject(new Error('Network error'));
+      reject(new Error("Network error"));
     };
 
     xhr.ontimeout = () => {
-      reject(new Error('Request timeout'));
+      reject(new Error("Request timeout"));
     };
 
-    signal?.addEventListener('abort', () => {
+    signal?.addEventListener("abort", () => {
       xhr.abort();
-      reject(new Error('Request aborted'));
+      reject(new Error("Request aborted"));
     });
 
     xhr.send(JSON.stringify({ prompt }));
