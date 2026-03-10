@@ -21,63 +21,13 @@ interface de chat desenvolvido em React Native com Expo, implementando arquitetu
 ## 🎯 Visão Geral
 
 **Chat IA** é uma aplicação mobile que permite aos usuários:
+
 - Conversar com uma IA por meio de mensagens de texto
 - Receber respostas em tempo real (streaming)
 - Cancelar respostas em andamento
 
 **Stack:** Expo + React Native + Redux + Redux Sagas
 **Plataforma:** iOS e Android
-
----
-
-## 📱 Casos de Uso
-
-### UC-01: Enviar Mensagem para IA
-
-**Ator:** Usuário
-**Pré-condição:** App aberto na tela de chat
-
-**Fluxo Principal:**
-1. Usuário digita mensagem no campo de input
-2. Usuário clica no botão "Enviar"
-3. App envia mensagem para a IA
-4. IA começa a processar
-5. Resposta começa a chegar em tempo real (streaming)
-6. Mensagens são exibidas parcialmente conforme chegam
-7. Fluxo finaliza quando a IA termina a resposta
-
-**Fluxo Alternativo (Cancelamento):**
-- Em qualquer momento do streaming, usuário clica "Stop"
-- Conexão é abortada
-- Resposta parcial é mantida na tela
-- App volta ao estado de "pronto para nova mensagem"
-
----
-
-### UC-02: Visualizar Histórico de Chat
-
-**Ator:** Usuário
-**Pré-condição:** Há mensagens no chat
-
-**Fluxo Principal:**
-1. Usuário vê lista de mensagens ordenadas cronologicamente
-2. Mensagens do usuário aparecem à direita
-3. Mensagens da IA aparecem à esquerda
-4. Scroll automático para última mensagem
-
----
-
-### UC-03: Parar Resposta em Andamento
-
-**Ator:** Usuário
-**Pré-condição:** IA está processando/streaming
-
-**Fluxo Principal:**
-1. Usuário visualiza botão "⏹ Stop" (vermelho)
-2. Clica no botão
-3. Conexão HTTP é abortada
-4. Resposta parcial é mantida
-5. Botão volta a ser "Enviar"
 
 ---
 
@@ -89,12 +39,12 @@ Flux é um **padrão de arquitetura** para gerenciar estado em aplicações. É 
 
 User Interaction → Action → Dispatcher → Store → View
 
-
 ### Implementação com Redux
 
 Redux é a implementação mais popular do padrão Flux. Seus componentes:
 
 #### **1. Actions**
+
 Descrições do que aconteceu.
 
 ```typescript
@@ -106,12 +56,13 @@ Descrições do que aconteceu.
 ```
 
 #### **2. Reducers**
+
 Funções puras que transformam estado com base em actions.
 
 ```typescript
 const chatReducer = (state = initialState, action) => {
-  switch(action.type) {
-    case 'SEND_PROMPT_REQUEST':
+  switch (action.type) {
+    case "SEND_PROMPT_REQUEST":
       return { ...state, isLoading: true };
     default:
       return state;
@@ -120,6 +71,7 @@ const chatReducer = (state = initialState, action) => {
 ```
 
 #### **3. Store**
+
 Centraliza todo o estado da aplicação.
 
 ```typescript
@@ -127,13 +79,14 @@ const store = createStore(rootReducer);
 ```
 
 #### **4. Middleware (Redux Sagas)**
+
 Lida com side effects (requisições HTTP, temporizadores, etc.).
 
 ```typescript
 function* sendPromptSaga(action) {
   // Chamadas assíncronas
   const response = yield call(api.chat, action.payload);
-  yield put({ type: 'SEND_PROMPT_SUCCESS', payload: response });
+  yield put({ type: "SEND_PROMPT_SUCCESS", payload: response });
 }
 ```
 
@@ -186,24 +139,29 @@ function* sendPromptSaga(action) {
 ## 🛠️ Tecnologias Utilizadas
 
 ### Expo
+
 - React Native framework
 - CLI para desenvolvimento e build
 - Gerenciamento de assets
 
 ### Redux
+
 - State Management
 - Centralização de estado
 - DevTools para debugging
 
 ### Redux Sagas
+
 - Middleware para side effects
 - Gerenciamento de fluxos assíncronos
 - Cancelamento de operações (race/take)
 
 ### React Navigation (Expo)
+
 - Navegação entre telas
 
 ### Axios
+
 - Cliente HTTP com melhor controle
 
 ## ✨ Funcionalidades
@@ -240,6 +198,7 @@ Resposta completa aparece de repente
 Problema: Usuário fica esperando, não sabe se app travou, experiência ruim.
 
 ### A Solução: Streaming
+
 Com streaming, a resposta chega aos poucos:
 
 ```
@@ -260,12 +219,13 @@ Backend começa a processar e enviar parcialmente
 Usuário vê resposta aparecer gradualmente
 (Muito mais satisfatório! - UX)
 ```
+
 ### Como Funciona no Código
 
 ```typescript
 // 1. Abrir conexão streaming
-const response = await fetch('/api/chat', {
-  method: 'POST',
+const response = await fetch("/api/chat", {
+  method: "POST",
   body: JSON.stringify({ prompt }),
   signal: abortController.signal, // Permite abortar
 });
@@ -283,10 +243,12 @@ while (true) {
   const chunk = decoder.decode(value, { stream: true });
 
   // 4. Dispatch ação para atualizar UI
-  dispatch(receiveStreamChunk({
-    messageId: lastMessageId,
-    chunk: chunk
-  }));
+  dispatch(
+    receiveStreamChunk({
+      messageId: lastMessageId,
+      chunk: chunk,
+    }),
+  );
 }
 ```
 
@@ -297,6 +259,61 @@ while (true) {
 ✅ Cancelamento - Pode parar a qualquer momento<br/>
 ✅ Uso de Banda - Dados chegam conforme processados<br/>
 ✅ Menos Timeout - Não aguarda resposta completa<br/>
+
+## 📱 Casos de Uso
+
+### UC-01: Enviar Mensagem para IA
+
+**Ator:** Usuário
+**Pré-condição:** App aberto na tela de chat
+
+**Fluxo Principal:**
+
+1. Usuário digita mensagem no campo de input
+2. Usuário clica no botão "Enviar"
+3. App envia mensagem para a IA
+4. IA começa a processar
+5. Resposta começa a chegar em tempo real (streaming)
+6. Mensagens são exibidas parcialmente conforme chegam
+7. Fluxo finaliza quando a IA termina a resposta
+
+**Fluxo Alternativo (Cancelamento):**
+
+- Em qualquer momento do streaming, usuário clica "Stop"
+- Conexão é abortada
+- Resposta parcial é mantida na tela
+- App volta ao estado de "pronto para nova mensagem"
+
+---
+
+### UC-02: Visualizar Histórico de Chat
+
+**Ator:** Usuário
+**Pré-condição:** Há mensagens no chat
+
+**Fluxo Principal:**
+
+1. Usuário vê lista de mensagens ordenadas cronologicamente
+2. Mensagens do usuário aparecem à direita
+3. Mensagens da IA aparecem à esquerda
+4. Scroll automático para última mensagem
+
+---
+
+### UC-03: Parar Resposta em Andamento
+
+**Ator:** Usuário
+**Pré-condição:** IA está processando/streaming
+
+**Fluxo Principal:**
+
+1. Usuário visualiza botão "⏹ Stop" (vermelho)
+2. Clica no botão
+3. Conexão HTTP é abortada
+4. Resposta parcial é mantida
+5. Botão volta a ser "Enviar"
+
+---
 
 ## 🔄 Diagrama de sequência
 
