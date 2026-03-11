@@ -32,6 +32,7 @@ const ChatInput = ({
       <View style={styles.inputWrapper}>
         <View style={styles.inputContainer}>
           <RNTextInput
+            testID="chat-input-field"
             style={styles.textInput}
             value={value}
             onChangeText={onChangeText}
@@ -43,6 +44,8 @@ const ChatInput = ({
             scrollEnabled
           />
           <TouchableOpacity
+            testID="chat-send-button"
+            accessibilityRole="button"
             style={[
               styles.sendButton,
               { backgroundColor: isLoading ? "#ff9f9fb0" : "transparent" },
@@ -59,9 +62,15 @@ const ChatInput = ({
             activeOpacity={0.7}
           >
             {isLoading ? (
-              <Ionicons name="stop" size={12} color="#fa4949" />
+              <Ionicons
+                testID="chat-stop-icon"
+                name="stop"
+                size={12}
+                color="#fa4949"
+              />
             ) : (
               <Ionicons
+                testID="chat-send-icon"
                 name="send"
                 size={20}
                 color={value.trim() === "" ? "#9CA3AF" : "#3B82F6"}
