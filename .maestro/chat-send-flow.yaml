@@ -1,0 +1,21 @@
+appId: host.exp.exponent
+---
+- launchApp
+- openLink: exp://10.0.2.2:8081
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-field"
+    timeout: 120000
+- tapOn:
+    id: "chat-input-field"
+- inputText: "Teste Maestro"
+- tapOn:
+    id: "chat-send-button"
+- extendedWaitUntil:
+    visible:
+      id: "chat-stop-icon"
+    timeout: 15000
+- extendedWaitUntil:
+    visible: "O que é a Arquitetura Flux?"
+    timeout: 90000
+- assertVisible: "O que é a Arquitetura Flux?"

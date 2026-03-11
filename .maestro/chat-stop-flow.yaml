@@ -1,0 +1,27 @@
+appId: host.exp.exponent
+---
+- launchApp
+- openLink: exp://10.0.2.2:8081
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-field"
+    timeout: 120000
+- tapOn:
+    id: "chat-input-field"
+- inputText: "Teste stop"
+- tapOn:
+    id: "chat-send-button"
+- extendedWaitUntil:
+    visible:
+      id: "chat-stop-icon"
+    timeout: 15000
+- tapOn:
+    id: "chat-send-button"
+- extendedWaitUntil:
+    visible:
+      id: "chat-send-icon"
+    timeout: 10000
+- assertVisible:
+    id: "chat-send-icon"
+- assertVisible:
+    id: "chat-send-icon"

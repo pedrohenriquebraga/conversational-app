@@ -435,6 +435,37 @@ npm run ios #or npm run android
 npm run start
 ```
 
+## 🧪 Estratégia de Testes (Jest + Maestro)
+
+Os testes foram organizados para rodar em paralelo por camada:
+
+- `npm run test` ou `npm run test:unit`: testes unitarios e de componente com Jest
+- `npm run test:e2e:jest`: testes E2E baseados em Jest (`*.e2e.test.tsx`)
+- `npm run test:e2e:maestro`: testes E2E no dispositivo com Maestro (fluxos em `.maestro/`)
+
+### Fluxos Maestro adicionados
+
+- `.maestro/chat-send-flow.yaml`: valida envio de mensagem e retorno de streaming
+- `.maestro/chat-stop-flow.yaml`: valida interrupcao de streaming no botao stop
+
+### Como executar Maestro
+
+1. Instale o Maestro CLI: https://maestro.mobile.dev/getting-started/installing-maestro
+2. Inicie o backend de exemplo:
+
+```bash
+cd server-example
+npm install
+node server.js
+```
+
+3. Em outro terminal, inicie o app Expo em emulador/simulador.
+4. Rode os fluxos:
+
+```bash
+npm run test:e2e:maestro
+```
+
 ## 🎨 Design (Figma)
 
 O design da aplicação foi criado no Figma. Acesse para ver a interface:

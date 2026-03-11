@@ -3,17 +3,17 @@ import { ChatUserMessage } from "@/components/ChatUserMessage";
 import { Message } from "@/types/chat";
 import React, { useCallback, useRef, useState } from "react";
 import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  View,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    View,
 } from "react-native";
 import { AIResponse } from "../../components/AgentComponents";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
-  sendPromptRequest,
-  stopStreamRequest,
+    sendPromptRequest,
+    stopStreamRequest,
 } from "../../store/modules/chat/slice";
 
 const ChatScreen = () => {
@@ -74,6 +74,7 @@ const ChatScreen = () => {
       >
         <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
           <FlatList<Message>
+            testID="chat-message-list"
             ref={flatListRef}
             data={messages}
             renderItem={renderMessage}
